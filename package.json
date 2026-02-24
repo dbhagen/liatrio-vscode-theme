@@ -1,0 +1,28 @@
+{
+  "name": "liatrio-theme",
+  "displayName": "Liatrio Theme",
+  "description": "A VSCode color theme inspired by liatrio.com branding",
+  "version": "0.1.0",
+  "publisher": "liatrio",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Themes"
+  ],
+  "contributes": {
+    "themes": [
+      {
+        "label": "Liatrio Dark",
+        "uiTheme": "vs-dark",
+        "path": "./themes/liatrio-dark-color-theme.json"
+      },
+      {
+        "label": "Liatrio Light",
+        "uiTheme": "vs",
+        "path": "./themes/liatrio-light-color-theme.json"
+      }
+    ]
+  }
+}
