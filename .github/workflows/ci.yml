@@ -16,11 +16,8 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install vsce
-        run: npm install -g @vscode/vsce
-
       - name: Package extension
-        run: vsce package
+        run: npx @vscode/vsce package
 
       - name: Upload .vsix artifact
         uses: actions/upload-artifact@v4

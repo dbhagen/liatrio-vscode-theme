@@ -33,14 +33,11 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install vsce
-        run: npm install -g @vscode/vsce
-
       - name: Package extension
-        run: vsce package
+        run: npx @vscode/vsce package
 
       - name: Publish to Visual Studio Marketplace
-        run: vsce publish -p ${{ secrets.VSCE_PAT }}
+        run: npx @vscode/vsce publish -p ${{ secrets.VSCE_PAT }}
 
       - name: Publish to Open VSX Registry
         run: npx ovsx publish *.vsix -p ${{ secrets.OVSX_PAT }}

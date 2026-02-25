@@ -5,6 +5,10 @@
   "version": "0.1.0",
   "publisher": "liatrio",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dbhagen/liatrio-vscode-theme.git"
+  },
   "engines": {
     "vscode": "^1.74.0"
   },
