@@ -44,12 +44,14 @@ jobs:
 
       - name: Publish to Visual Studio Marketplace
         if: steps.tag_check.outputs.exists == 'false' && env.VSCE_PAT != ''
+        continue-on-error: true
         run: npx @vscode/vsce publish -p ${{ secrets.VSCE_PAT }}
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
 
       - name: Publish to Open VSX Registry
         if: steps.tag_check.outputs.exists == 'false' && env.OVSX_PAT != ''
+        continue-on-error: true
         run: npx ovsx publish *.vsix -p ${{ secrets.OVSX_PAT }}
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
