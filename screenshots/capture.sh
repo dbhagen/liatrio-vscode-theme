@@ -44,13 +44,16 @@ capture_theme() {
   "workbench.startupEditor": "none",
   "workbench.tips.enabled": false,
   "workbench.panel.defaultLocation": "bottom",
-  "workbench.activityBar.location": "side",
-  "workbench.sideBar.location": "left",
+  "workbench.activityBar.visible": false,
+  "workbench.sideBar.visible": false,
   "window.restoreWindows": "none",
   "telemetry.telemetryLevel": "off",
   "security.workspace.trust.enabled": false,
   "chat.commandCenter.enabled": false,
+  "chat.editor.wordWrap": "off",
   "github.copilot.enable": { "*": false },
+  "workbench.secondarySideBar.visible": false,
+  "workbench.auxiliaryBar.visible": false,
   "extensions.autoUpdate": false,
   "update.mode": "none"
 }
