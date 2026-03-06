@@ -18,15 +18,19 @@ code --install-extension *.vsix
 
 ## Project Structure
 
-- `package.json` — Extension manifest. Declares the two theme contributions and metadata. Version is managed by release-please.
+- `package.json` — Extension manifest. Declares theme contributions, metadata, version, and icon.
 - `themes/liatrio-dark-color-theme.json` — Dark theme definition (workbench colors, token colors, semantic token colors)
 - `themes/liatrio-light-color-theme.json` — Light theme definition (same structure, light palette)
-- `.github/workflows/ci.yml` — Packages extension on push/PR to main
-- `.github/workflows/release-please.yml` — Automated releases via release-please; publishes to VS Marketplace and Open VSX
+- `icon.png` — 128x128 Liatrio flame logo for marketplace listing
+- `screenshots/` — Auto-generated theme preview images (dark.png, light.png) and sample code
+- `.github/workflows/ci.yml` — Packages extension on PRs
+- `.github/workflows/release.yml` — On push to main, creates a GitHub release and publishes to marketplaces if the version in package.json is new
+- `.github/workflows/screenshots.yml` — Captures theme screenshots in CI via xvfb; runs on PRs that change themes
 
 ## Theme Architecture
 
 Each theme JSON has three sections:
+
 1. **`colors`** — Workbench/UI colors (editor, sidebar, terminal, status bar, etc.)
 2. **`tokenColors`** — TextMate scope-based syntax highlighting rules
 3. **`semanticTokenColors`** — LSP semantic token overrides
@@ -35,4 +39,4 @@ Both themes use the same color roles with dark/light appropriate values. The bra
 
 ## Release Process
 
-Uses [release-please](https://github.com/googleapis/release-please) with conventional commits. Merging the release PR bumps the version in `package.json` and `.release-please-manifest.json`, then publishes to VS Marketplace (`VSCE_PAT` secret) and Open VSX (`OVSX_PAT` secret).
+Bump the version in `package.json` and merge to main. The release workflow checks if a git tag exists for that version — if not, it creates a GitHub release with the .vsix and publishes to VS Marketplace (`VSCE_PAT` secret) and Open VSX (`OVSX_PAT` secret).
