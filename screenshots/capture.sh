@@ -17,8 +17,7 @@ fi
 EXTENSIONS_DIR=$(mktemp -d)
 trap 'rm -rf "$EXTENSIONS_DIR"' EXIT
 
-# Install only our theme extension — empty extensions dir means no built-in
-# extensions like TypeScript that would show "Analyzing..." in the status bar
+# Install only our theme — isolated extensions dir avoids built-in extensions
 code --extensions-dir "$EXTENSIONS_DIR" --install-extension "$VSIX" --force
 
 capture_theme() {
@@ -28,7 +27,6 @@ capture_theme() {
 
   echo "Capturing: $theme_id -> $output_file"
 
-  # Use a fresh user data dir per theme to avoid lock conflicts
   local user_data
   user_data=$(mktemp -d)
 
@@ -45,15 +43,14 @@ capture_theme() {
   "window.titleBarStyle": "custom",
   "workbench.startupEditor": "none",
   "workbench.tips.enabled": false,
-  "workbench.panel.defaultLocation": "bottom",
   "workbench.activityBar.visible": false,
   "workbench.sideBar.visible": false,
-  "workbench.secondarySideBar.visible": false,
-  "workbench.auxiliaryBar.visible": false,
+  "workbench.panel.opensMaximized": "never",
   "window.restoreWindows": "none",
   "telemetry.telemetryLevel": "off",
   "security.workspace.trust.enabled": false,
   "chat.commandCenter.enabled": false,
+  "chat.editor.wordWrap": "off",
   "github.copilot.enable": { "*": false },
   "extensions.autoUpdate": false,
   "update.mode": "none",
@@ -61,30 +58,44 @@ capture_theme() {
 }
 SETTINGS
 
+  # Pre-configure layout state to hide all panels/sidebars
+  mkdir -p "$user_data/User/globalStorage"
+  cat > "$user_data/User/globalStorage/state.vscdb.init" <<STATE
+{}
+STATE
+
   cat > "$user_data/argv.json" <<ARGV
 { "disable-hardware-acceleration": true }
 ARGV
 
   export DISPLAY=":${display_num}"
 
-  Xvfb ":${display_num}" -screen 0 1920x1080x24 &
+  Xvfb ":${display_num}" -screen 0 1280x800x24 &
   local xvfb_pid=$!
   sleep 2
 
+  # Use xdotool to maximize window after VS Code starts
   code \
     --user-data-dir "$user_data" \
     --extensions-dir "$EXTENSIONS_DIR" \
-    --disable-extensions-except "$VSIX" \
     --disable-gpu \
-    --maximize \
     --new-window \
     "$SAMPLE_FILE" &
   local code_pid=$!
 
-  # Give VS Code time to fully render and apply theme
-  sleep 12
+  sleep 5
 
-  # Capture full screen (VS Code is maximized to fill it)
+  # Maximize the window and close any sidebar via keyboard shortcuts
+  xdotool key super+Up 2>/dev/null || true
+  # Toggle sidebar off (Ctrl+B)
+  xdotool key ctrl+b 2>/dev/null || true
+  # Close secondary sidebar (Ctrl+Alt+B)
+  xdotool key ctrl+alt+b 2>/dev/null || true
+
+  # Wait for render to settle after layout changes
+  sleep 5
+
+  # Capture full virtual display
   import -window root "$output_file"
 
   kill "$code_pid" 2>/dev/null || true
