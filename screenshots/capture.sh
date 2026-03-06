@@ -14,13 +14,8 @@ if [[ -z "$VSIX" ]]; then
   exit 1
 fi
 
-USER_DATA=$(mktemp -d)
 EXTENSIONS_DIR=$(mktemp -d)
-
-cleanup() {
-  rm -rf "$USER_DATA" "$EXTENSIONS_DIR"
-}
-trap cleanup EXIT
+trap 'rm -rf "$EXTENSIONS_DIR"' EXIT
 
 code --extensions-dir "$EXTENSIONS_DIR" --install-extension "$VSIX" --force
 
@@ -31,7 +26,11 @@ capture_theme() {
 
   echo "Capturing: $theme_id -> $output_file"
 
-  local settings_dir="$USER_DATA/User"
+  # Use a fresh user data dir per theme to avoid lock conflicts
+  local user_data
+  user_data=$(mktemp -d)
+
+  local settings_dir="$user_data/User"
   mkdir -p "$settings_dir"
   cat > "$settings_dir/settings.json" <<SETTINGS
 {
@@ -39,14 +38,25 @@ capture_theme() {
   "window.zoomLevel": 0,
   "editor.fontSize": 14,
   "editor.minimap.enabled": false,
+  "editor.scrollbar.vertical": "hidden",
+  "editor.scrollbar.horizontal": "hidden",
   "window.titleBarStyle": "custom",
   "workbench.startupEditor": "none",
+  "workbench.tips.enabled": false,
+  "workbench.panel.defaultLocation": "bottom",
+  "workbench.activityBar.location": "side",
+  "workbench.sideBar.location": "left",
+  "window.restoreWindows": "none",
   "telemetry.telemetryLevel": "off",
-  "window.restoreWindows": "none"
+  "security.workspace.trust.enabled": false,
+  "chat.commandCenter.enabled": false,
+  "github.copilot.enable": { "*": false },
+  "extensions.autoUpdate": false,
+  "update.mode": "none"
 }
 SETTINGS
 
-  cat > "$USER_DATA/argv.json" <<ARGV
+  cat > "$user_data/argv.json" <<ARGV
 { "disable-hardware-acceleration": true }
 ARGV
 
@@ -57,21 +67,26 @@ ARGV
   sleep 2
 
   code \
-    --user-data-dir "$USER_DATA" \
+    --user-data-dir "$user_data" \
     --extensions-dir "$EXTENSIONS_DIR" \
     --disable-gpu \
+    --maximize \
     --new-window \
     "$SAMPLE_FILE" &
   local code_pid=$!
 
-  sleep 8
+  # Give VS Code time to fully render and apply theme
+  sleep 10
 
-  import -window root "$output_file"
+  # Capture and trim black borders
+  import -window root png:- | convert png:- -trim +repage "$output_file"
 
   kill "$code_pid" 2>/dev/null || true
   kill "$xvfb_pid" 2>/dev/null || true
   wait "$code_pid" 2>/dev/null || true
   wait "$xvfb_pid" 2>/dev/null || true
+
+  rm -rf "$user_data"
 }
 
 capture_theme "Liatrio Dark" "$SCRIPT_DIR/dark.png" 99
