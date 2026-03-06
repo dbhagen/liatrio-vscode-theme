@@ -3,4 +3,6 @@
 *.vsix
 .release-please-manifest.json
 screenshots/
+icon.svg
 .claude/
+CLAUDE.md

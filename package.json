@@ -4,6 +4,7 @@
   "description": "A VSCode color theme inspired by liatrio.com branding",
   "version": "0.1.3",
   "publisher": "DanielHagen-Liatrio",
+  "icon": "icon.png",
   "license": "MIT",
   "repository": {
     "type": "git",
