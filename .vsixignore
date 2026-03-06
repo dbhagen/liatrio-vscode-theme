@@ -2,3 +2,5 @@
 .gitignore
 *.vsix
 .release-please-manifest.json
+screenshots/
+.claude/

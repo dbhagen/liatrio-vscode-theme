@@ -1,0 +1,63 @@
+name: Screenshots
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "themes/**"
+      - "screenshots/sample.ts"
+      - "screenshots/capture.sh"
+      - ".github/workflows/screenshots.yml"
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y xvfb imagemagick
+
+      - name: Install VS Code
+        run: |
+          wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg
+          sudo install -D -o root -g root -m 644 packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg
+          echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list
+          sudo apt-get update
+          sudo apt-get install -y code
+
+      - name: Package extension
+        run: npx @vscode/vsce package
+
+      - name: Capture screenshots
+        run: ./screenshots/capture.sh
+
+      - name: Upload screenshots as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: theme-screenshots
+          path: |
+            screenshots/dark.png
+            screenshots/light.png
+
+      - name: Commit screenshots to PR branch
+        if: github.event_name == 'pull_request'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add screenshots/dark.png screenshots/light.png
+          git diff --cached --quiet && echo "No screenshot changes" && exit 0
+          git commit -m "chore: update theme screenshots"
+          git push
