@@ -58,12 +58,6 @@ capture_theme() {
 }
 SETTINGS
 
-  # Pre-configure layout state to hide all panels/sidebars
-  mkdir -p "$user_data/User/globalStorage"
-  cat > "$user_data/User/globalStorage/state.vscdb.init" <<STATE
-{}
-STATE
-
   cat > "$user_data/argv.json" <<ARGV
 { "disable-hardware-acceleration": true }
 ARGV
@@ -85,12 +79,8 @@ ARGV
 
   sleep 5
 
-  # Maximize the window and close any sidebar via keyboard shortcuts
+  # Maximize the window
   xdotool key super+Up 2>/dev/null || true
-  # Toggle sidebar off (Ctrl+B)
-  xdotool key ctrl+b 2>/dev/null || true
-  # Close secondary sidebar (Ctrl+Alt+B)
-  xdotool key ctrl+alt+b 2>/dev/null || true
 
   # Wait for render to settle after layout changes
   sleep 5
