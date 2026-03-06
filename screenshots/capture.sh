@@ -17,6 +17,8 @@ fi
 EXTENSIONS_DIR=$(mktemp -d)
 trap 'rm -rf "$EXTENSIONS_DIR"' EXIT
 
+# Install only our theme extension — empty extensions dir means no built-in
+# extensions like TypeScript that would show "Analyzing..." in the status bar
 code --extensions-dir "$EXTENSIONS_DIR" --install-extension "$VSIX" --force
 
 capture_theme() {
@@ -46,16 +48,16 @@ capture_theme() {
   "workbench.panel.defaultLocation": "bottom",
   "workbench.activityBar.visible": false,
   "workbench.sideBar.visible": false,
+  "workbench.secondarySideBar.visible": false,
+  "workbench.auxiliaryBar.visible": false,
   "window.restoreWindows": "none",
   "telemetry.telemetryLevel": "off",
   "security.workspace.trust.enabled": false,
   "chat.commandCenter.enabled": false,
-  "chat.editor.wordWrap": "off",
   "github.copilot.enable": { "*": false },
-  "workbench.secondarySideBar.visible": false,
-  "workbench.auxiliaryBar.visible": false,
   "extensions.autoUpdate": false,
-  "update.mode": "none"
+  "update.mode": "none",
+  "typescript.disableAutomaticTypeAcquisition": true
 }
 SETTINGS
 
@@ -72,6 +74,7 @@ ARGV
   code \
     --user-data-dir "$user_data" \
     --extensions-dir "$EXTENSIONS_DIR" \
+    --disable-extensions-except "$VSIX" \
     --disable-gpu \
     --maximize \
     --new-window \
@@ -79,10 +82,10 @@ ARGV
   local code_pid=$!
 
   # Give VS Code time to fully render and apply theme
-  sleep 10
+  sleep 12
 
-  # Capture and trim black borders
-  import -window root png:- | convert png:- -trim +repage "$output_file"
+  # Capture full screen (VS Code is maximized to fill it)
+  import -window root "$output_file"
 
   kill "$code_pid" 2>/dev/null || true
   kill "$xvfb_pid" 2>/dev/null || true
