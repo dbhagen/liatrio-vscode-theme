@@ -43,7 +43,6 @@ capture_theme() {
   "window.titleBarStyle": "custom",
   "workbench.startupEditor": "none",
   "workbench.tips.enabled": false,
-  "workbench.activityBar.visible": false,
   "workbench.sideBar.visible": false,
   "workbench.panel.opensMaximized": "never",
   "window.restoreWindows": "none",
