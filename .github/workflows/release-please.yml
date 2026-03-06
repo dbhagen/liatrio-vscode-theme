@@ -36,14 +36,20 @@ jobs:
       - name: Package extension
         run: npx @vscode/vsce package
 
-      - name: Publish to Visual Studio Marketplace
-        run: npx @vscode/vsce publish -p ${{ secrets.VSCE_PAT }}
-
-      - name: Publish to Open VSX Registry
-        run: npx ovsx publish *.vsix -p ${{ secrets.OVSX_PAT }}
-
       - name: Upload .vsix to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.release-please.outputs.tag_name }}
           files: "*.vsix"
+
+      - name: Publish to Visual Studio Marketplace
+        if: env.VSCE_PAT != ''
+        run: npx @vscode/vsce publish -p ${{ secrets.VSCE_PAT }}
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+      - name: Publish to Open VSX Registry
+        if: env.OVSX_PAT != ''
+        run: npx ovsx publish *.vsix -p ${{ secrets.OVSX_PAT }}
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
