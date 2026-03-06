@@ -2,7 +2,7 @@
   "name": "liatrio-theme",
   "displayName": "Liatrio Theme",
   "description": "A VSCode color theme inspired by liatrio.com branding",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "publisher": "DanielHagen-Liatrio",
   "license": "MIT",
   "repository": {
